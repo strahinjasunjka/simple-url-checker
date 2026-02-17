@@ -1,0 +1,23 @@
+
+.center-container  {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.url-status label,
+.message label {
+    display: block;        
+    min-height: 1.2em;     
+    color: black;
+    font-size: 0.9em;
+}
+
+.url-status label.valid {
+    color: green;
+}
+
+.url-status label.invalid {
+    color: red;
+}
