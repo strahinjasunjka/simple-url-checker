@@ -11,11 +11,13 @@ const SERVER_CHECK_DELAY = 200; // milliseconds
 
 
 function validate(e) {
-    let taget = e.target;
+    
     if(isValidURL(urlInput.value)) {
         statusDiv.textContent = 'Valid URL';
         statusDiv.classList.add('valid');
         statusDiv.classList.remove('invalid');
+        // Show checking message immediately while waiting for the throttled server check to execute
+        messageDiv.textContent = 'Checking...';
         throttledServerCheck(urlInput.value);
        
     } else {
@@ -37,7 +39,7 @@ function isValidURL(url) {
 }
 
 //Advanced throttle that ensures the last call is executed after the delay, even if multiple calls are made during the delay period
-var throttleAdvanced = function (func, delay) {
+function throttleAdvanced(func, delay) {
     let isThrottled = false;
     let nextArgs = null;
     let nextContext = null;
@@ -84,10 +86,18 @@ function serverCheck(url) {
     });
 }
 
+let requestId = 0; // Counter to track the latest request
+
 //Throttled version of serverCheck to avoid that too many server requests are done all the time
 const throttledServerCheck = throttleAdvanced(async (url) => {
+    const currentRequestId = ++requestId; // Increment requestId for each call
     try {
         const result = await serverCheck(url);
+
+        if (currentRequestId !== requestId) {
+            // If this is not the latest request, ignore the result
+            return;
+        }
 
         if (result) {
             messageDiv.textContent = result;
