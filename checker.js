@@ -8,7 +8,7 @@ urlInput.addEventListener('input', validate);
 //Average typing speed is around 0.3s per character
 const THROTTLE_DELAY = 300; // milliseconds
 const SERVER_CHECK_DELAY = 200; // milliseconds
-
+let requestId = 0; // To track the latest request and ignore outdated responses
 
 function validate(e) {
     
@@ -18,7 +18,8 @@ function validate(e) {
         statusDiv.classList.remove('invalid');
         // Show checking message immediately while waiting for the throttled server check to execute
         messageDiv.textContent = 'Checking...';
-        throttledServerCheck(urlInput.value);
+        const currentRequestId = ++requestId;
+        throttledServerCheck(urlInput.value,currentRequestId);
        
     } else {
         statusDiv.textContent = 'Invalid URL';
@@ -86,11 +87,8 @@ function serverCheck(url) {
     });
 }
 
-let requestId = 0; // Counter to track the latest request
-
 //Throttled version of serverCheck to avoid that too many server requests are done all the time
-const throttledServerCheck = throttleAdvanced(async (url) => {
-    const currentRequestId = ++requestId; // Increment requestId for each call
+const throttledServerCheck = throttleAdvanced(async (url, currentRequestId) => {
     try {
         const result = await serverCheck(url);
 
